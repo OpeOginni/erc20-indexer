@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   Center,
@@ -27,28 +29,31 @@ function App() {
 
     const alchemy = new Alchemy(config);
     setButtonText("Checking Address..."); // To let the user know that the search is in progress
-    const add = await alchemy.core.lookupAddress(userAddress);
-    console.log(add);
-
-    const data = await alchemy.core.getTokenBalances(userAddress);
-    if (!data) {
-      console.log("Please plug in a correct ETH Address");
+    if (userAddress.length != 42 || !userAddress.startsWith("0x")) {
+      setButtonText("Check ERC-20 Token Balances");
+      return alert("Please plug in a correct ETH wallet Address");
     }
 
-    setResults(data);
+    try {
+      const data = await alchemy.core.getTokenBalances(userAddress);
 
-    const tokenDataPromises = [];
+      setResults(data);
 
-    for (let i = 0; i < data.tokenBalances.length; i++) {
-      const tokenData = alchemy.core.getTokenMetadata(
-        data.tokenBalances[i].contractAddress
-      );
-      tokenDataPromises.push(tokenData);
+      const tokenDataPromises = [];
+
+      for (let i = 0; i < data.tokenBalances.length; i++) {
+        const tokenData = alchemy.core.getTokenMetadata(
+          data.tokenBalances[i].contractAddress
+        );
+        tokenDataPromises.push(tokenData);
+      }
+
+      setTokenDataObjects(await Promise.all(tokenDataPromises));
+      setHasQueried(true);
+      setButtonText("Check ERC-20 Token Balances");
+    } catch (err) {
+      return alert("Invalid ETH wallet Address");
     }
-
-    setTokenDataObjects(await Promise.all(tokenDataPromises));
-    setHasQueried(true);
-    setButtonText("Check ERC-20 Token Balances");
   }
   return (
     <Box w="100vw">
@@ -114,7 +119,7 @@ function App() {
                   </Box>
                   <Image
                     src={tokenDataObjects[i].logo}
-                    style={{ width: 70, height: 70 }}
+                    style={{ width: 70, height: 70 }} // Better logo size
                   />
                 </Flex>
               );
