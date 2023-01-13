@@ -24,7 +24,7 @@ function App() {
 
   async function getTokenBalance() {
     const config = {
-      apiKey: "3aWM3BXSsEUWmFLTvEj-SsIYMasWhiV2",
+      apiKey: "3aWM3BXSsEUWmFLTvEj-SsIYMasWhiV2", // Put in your own Alchemy Mainnet API key
       network: Network.ETH_MAINNET,
     };
 
@@ -36,7 +36,7 @@ function App() {
     }
 
     const ens = await alchemy.core.lookupAddress(userAddress);
-    setEnsName(ens);
+    setEnsName(ens); // Getting the Address ENS Name
 
     try {
       const data = await alchemy.core.getTokenBalances(userAddress);
