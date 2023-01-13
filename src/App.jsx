@@ -19,6 +19,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
   const [buttonText, setButtonText] = useState("Check ERC-20 Token Balances");
+  const [ensName, setEnsName] = useState(null);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
 
   async function getTokenBalance() {
@@ -33,6 +34,9 @@ function App() {
       setButtonText("Check ERC-20 Token Balances");
       return alert("Please plug in a correct ETH wallet Address");
     }
+
+    const ens = await alchemy.core.lookupAddress(userAddress);
+    setEnsName(ens);
 
     try {
       const data = await alchemy.core.getTokenBalances(userAddress);
@@ -94,6 +98,8 @@ function App() {
           {buttonText}
         </Button>
 
+        <Heading my={36}>Welcome {ensName}</Heading>
+
         <Heading my={36}>ERC-20 token balances:</Heading>
 
         {hasQueried ? (
@@ -117,10 +123,17 @@ function App() {
                       tokenDataObjects[i].decimals
                     )}
                   </Box>
-                  <Image
-                    src={tokenDataObjects[i].logo}
-                    style={{ width: 70, height: 70 }} // Better logo size
-                  />
+                  {tokenDataObjects[i].logo ? (
+                    <Image
+                      src={tokenDataObjects[i].logo}
+                      style={{ width: 70, height: 70 }} // Better logo size
+                    />
+                  ) : (
+                    <Image
+                      src="/noLogo.png"
+                      style={{ width: 70, height: 70 }} // Better logo size
+                    />
+                  )}
                 </Flex>
               );
             })}
